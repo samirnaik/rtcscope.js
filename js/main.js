@@ -163,20 +163,25 @@ function gotRemoteStream(e) {
   trace('pc2 received remote stream');
 
   getStats(pc1, pc1.getLocalStreams()[0].getAudioTracks()[0], function(result) {
-    var tags = "id=" + result.results[0]['googTrackId']
-    var fields = getKeyValuePairs(result.audio)
-    var unix_nano = Date.now() * 1000000
-    var data = "rtc_stats," + tags + " " + fields + " " + unix_nano
-    console.log(data);
+    var uid = result.results[0]['googTrackId']
+    if (uid) {
+      var tags = "id=" + result.results[0]['googTrackId']
+      var fields = getKeyValuePairs(result.audio)
+      if (fields) {
+        var unix_nano = Date.now() * 1000000
+        var data = "rtc_stats," + tags + " " + fields + " " + unix_nano
+        console.log(data);
 
-    $.ajax({
-      type: "POST",
-      url: "http://localhost:8086/write?db=mydb",
-      data: data,
-      success: function(result, status) {
-        console.log("Influx status ", result, status)
-      },
-    });
+        $.ajax({
+          type: "POST",
+          url: "http://localhost:8086/write?db=mydb",
+          data: data,
+          success: function(result, status) {
+            console.log("Influx status ", result, status)
+          },
+        });
+      }
+    }
   }, 2500)
 }
 
